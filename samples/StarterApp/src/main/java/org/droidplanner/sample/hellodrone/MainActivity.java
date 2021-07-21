@@ -401,6 +401,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         } else {
             connectButton.setText("Connect");
         }
+
     }
 
     protected void updateArmButton() {
