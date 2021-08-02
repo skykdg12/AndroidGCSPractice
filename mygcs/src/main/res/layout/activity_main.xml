@@ -13,12 +13,12 @@
         android:name="com.naver.maps.map.MapFragment"/>
 
     <Button
-        android:id="@+id/btnConnect"
+        android:id="@+id/btnUdpConnect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="10dp"
-        android:text="Connect"
+        android:text="UdpConnect"
         android:onClick="onBtnConnectTap"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -39,15 +39,22 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="전압"
+            android:textColor="#FFFFFF"
             android:textSize="20dp" />
 
         <TextView
             android:id="@+id/VehicleMode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="0"
             android:text="비행모드"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            android:textColor="#FFFFFF" />
+
+        <Spinner
+            android:id="@+id/ModeSelect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
         <TextView
             android:id="@+id/Altitude"
@@ -55,7 +62,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="고도"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            android:textColor="#FFFFFF" />
 
         <TextView
             android:id="@+id/Speed"
@@ -63,7 +71,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="속도"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            android:textColor="#FFFFFF" />
 
         <TextView
             android:id="@+id/YAW"
@@ -71,7 +80,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="YAW"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            android:textColor="#FFFFFF" />
 
         <TextView
             android:id="@+id/Gps"
@@ -79,7 +89,9 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="위성"
-            android:textSize="20dp" />
+            android:textSize="20dp"
+            android:textColor="#FFFFFF" />
+
     </LinearLayout>
 
     <Button
@@ -88,8 +100,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="40dp"
-        android:onClick="onArmButtonTap"
         android:text="ARM"
+        android:onClick="onArmButtonTap"
+        android:background="#FFA500"
         app:layout_constraintBottom_toBottomOf="@+id/map"
         app:layout_constraintStart_toStartOf="@+id/map" />
 
@@ -99,8 +112,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="35dp"
         android:layout_marginEnd="60dp"
-        android:lines="2"
         android:onClick="Al"
+        android:background="#8b4513"
         app:layout_constraintEnd_toEndOf="@+id/map"
         app:layout_constraintTop_toTopOf="@+id/map" />
 
@@ -113,6 +126,7 @@
         android:text="+0.5"
         android:onClick="add"
         android:visibility="invisible"
+        android:background="#8b4513"
         app:layout_constraintEnd_toEndOf="@+id/map"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -124,8 +138,20 @@
         android:layout_marginEnd="60dp"
         android:text="-0.5"
         android:onClick="min"
+        android:background="#8b4513"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/map" />
+
+    <Button
+        android:id="@+id/btnBltConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:onClick="BltConnect"
+        android:text="BltConnect"
+        app:layout_constraintBottom_toTopOf="@+id/btnUdpConnect"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

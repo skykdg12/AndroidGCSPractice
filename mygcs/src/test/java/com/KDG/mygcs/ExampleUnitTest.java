@@ -1,4 +1,4 @@
-package com.viasofts.mygcs;
+package com.KDG.mygcs;
 
 import org.junit.Test;
 

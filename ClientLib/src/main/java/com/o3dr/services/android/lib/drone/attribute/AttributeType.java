@@ -14,8 +14,6 @@ public class AttributeType {
      * Used to access the vehicle's altitude state.
      * @see {@link com.o3dr.services.android.lib.drone.property.Altitude}
      */
-
-
     public static final String ALTITUDE = PACKAGE_NAME + ".ALTITUDE";
 
     /**

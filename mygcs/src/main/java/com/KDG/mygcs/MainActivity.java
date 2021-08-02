@@ -1,4 +1,4 @@
-package com.viasofts.mygcs;
+package com.KDG.mygcs;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.PointF;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +22,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.KDG.mygcs.activites.helpers.BluetoothDevicesActivity;
+import com.KDG.mygcs.utils.prefs.DroidPlannerPrefs;
 import com.naver.maps.geometry.LatLng;
 import com.naver.maps.map.CameraAnimation;
 import com.naver.maps.map.CameraUpdate;
@@ -57,8 +58,6 @@ import com.o3dr.services.android.lib.drone.property.VehicleMode;
 import com.o3dr.services.android.lib.gcs.link.LinkConnectionStatus;
 import com.o3dr.services.android.lib.model.AbstractCommandListener;
 import com.o3dr.services.android.lib.model.SimpleCommandListener;
-import com.viasofts.mygcs.activites.helpers.BluetoothDevicesActivity;
-import com.viasofts.mygcs.utils.prefs.DroidPlannerPrefs;
 
 import java.util.List;
 
@@ -73,27 +72,21 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1000;
     private static final String[] PERMISSIONS = {
             Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-    };
+            Manifest.permission.ACCESS_COARSE_LOCATION};
     private double Alti = 3.0;
     private double Add = 0.5;
     private double Minus = 0.5;
-
     private static final int DEFAULT_UDP_PORT = 14550;
     private static final int DEFAULT_USB_BAUD_RATE = 57600;
-
     private Spinner modeSelector;
-
     NaverMap mNaverMap;
     Marker mDroneMarker;
-
     ConnectionParameter connParams;
-
     Handler mainHandler;
-
     Marker DesMarker = new Marker();
-    double DesLa = DesMarker.getPosition().latitude;
-    double DesLo = DesMarker.getPosition().longitude;
+    VehicleMode mVehicleMode;
+    boolean mCheckGuideMode = false;
+
 
 
     @Override
@@ -120,8 +113,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
         mainHandler = new Handler(getApplicationContext().getMainLooper());
     }
-
-
 
     @Override
     public void onMapReady(@NonNull NaverMap naverMap) {
@@ -150,21 +141,20 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
             }
         });
 
-
 //        롱클릭 마커
-        mNaverMap.setOnMapLongClickListener(new NaverMap.OnMapLongClickListener() {
-            @Override
-            public void onMapLongClick(@NonNull PointF pointF, @NonNull LatLng latLng) {
-                DesMarker.setPosition(latLng);
+        mNaverMap.setOnMapLongClickListener((point, coord) -> {
+
+                DesMarker.setPosition(coord);
                 DesMarker.setMap(mNaverMap);
                 DesMarker.setIcon(MarkerIcons.BLACK);
                 DesMarker.setIconTintColor(Color.RED);
-            }
-        });
 
-    }
+                LatLong mGuidedPoint = new LatLong(coord.latitude, coord.longitude);
+                GuideMode(mGuidedPoint);
+            });
+        }
 
-//  기체 고도 설정 버튼 나타내기/사라지기
+    //  기체 고도 설정 버튼 나타내기/사라지기
     public void Al(View view){
         final Button BtnAdd = (Button) findViewById(R.id.btnadd);
         final Button Btnminus = (Button) findViewById(R.id.btnminus);
@@ -198,7 +188,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         }
     }
 
-
     @Override
     public void onStart() {
         super.onStart();
@@ -226,7 +215,32 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
             ConnectionParameter connectionParams = ConnectionParameter.newUdpConnection(null);
             this.drone.connect(connectionParams);
         }
+    }
 
+    //    블루투스 연결
+    public void BltConnect(View view){
+        DroidPlannerPrefs mPrefs = DroidPlannerPrefs.getInstance(getApplicationContext());
+
+        String btAddress = mPrefs.getBluetoothDeviceAddress();
+        final @ConnectionType.Type int connectionType = mPrefs.getConnectionParameterType();
+
+        Uri tlogLoggingUri = com.KDG.mygcs.utils.TLogUtils.getTLogLoggingUri(getApplicationContext(),
+                connectionType, System.currentTimeMillis());
+
+        final long EVENTS_DISPATCHING_PERIOD = 200L; //MS
+
+        if (TextUtils.isEmpty(btAddress)) {
+            connParams = null;
+            startActivity(new Intent(getApplicationContext(), BluetoothDevicesActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        } else {
+            connParams = ConnectionParameter.newBluetoothConnection(btAddress,
+                    tlogLoggingUri, EVENTS_DISPATCHING_PERIOD);
+        }
+        if (this.drone.isConnected()) {
+            this.drone.disconnect();
+        } else {
+            this.drone.connect(connParams);
+        }
     }
 
 //  드론 상태값 가져오기
@@ -253,7 +267,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
                 if (newDroneType.getDroneType() != this.droneType) {
                     this.droneType = newDroneType.getDroneType();
                     updateVehicleModesForType(this.droneType);
-
                 }
                 break;
 
@@ -279,7 +292,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
             case AttributeEvent.GPS_POSITION:
                 updateGps_Position();
-                GuideMode();
                 break;
 
             case AttributeEvent.ATTITUDE_UPDATED:
@@ -292,13 +304,21 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         }
     }
 
-    private void GuideMode() {
-        LatLng mGuidedPoint; //가이드모드 목적지 저장
-        Marker mMarkerGuide = new com.naver.maps.map.overlay.Marker(); //GCS 위치 표시마커 옵션
-        static void DialogSimple(Drone drone, LatLong point) {
-            AlertDialog.Builder alt_bld = new AlertDialog.Builder(MapActivity.this);
-            alt_bld.setMessage("확인하시면 가이드모드로 전환후 기체가 이동합니다.").setCancelable(false).setPositiveButton("확인", new DialogInterface.OnClickListener() {
+    //    가이드 모드
+    private void GuideMode(LatLong point) {
+        mCheckGuideMode = true;
+        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
+
+        if(vehicleState.getVehicleMode() == VehicleMode.COPTER_GUIDED){
+            ControlApi.getApi(drone).goTo(point, true, null);
+        }
+
+        else if (vehicleState.getVehicleMode() != VehicleMode.COPTER_GUIDED){
+            AlertDialog.Builder MoveAlert = new AlertDialog.Builder(MainActivity.this);
+            MoveAlert.setMessage("현재고도를 유지하며\n목표지점까지 기체가 이동합니다.").setCancelable(false).setPositiveButton("확인", new DialogInterface.OnClickListener() {
+
                 public void onClick(DialogInterface dialog, int id) {
+
                     VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_GUIDED,
                             new AbstractCommandListener() {
                                 @Override
@@ -321,19 +341,10 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
                     dialog.cancel();
                 }
             });
-            AlertDialog alert = alt_bld.create();
+            AlertDialog alert = MoveAlert.create();
             alert.show();
         }
     }
-
-
-    public static boolean CheckGoal(final Drone drone, LatLng recentLatLng) {
-        GuidedState guidedState = drone.getAttribute(AttributeType.GUIDED_STATE);
-        LatLng target = new LatLng(guidedState.getCoordinate().getLatitude(),
-                guidedState.getCoordinate().getLongitude());
-        return target.distanceTo(recentLatLng) <= 1;
-    }
-
 
 
     //  ARM, TAKE-OFF, LAND 기능 구현
@@ -341,7 +352,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         final Button armButton = (Button) findViewById(R.id.btnArmTakeOff);
         final AlertDialog.Builder ArmAlert = new AlertDialog.Builder(MainActivity.this);
-
 
         if (vehicleState.isFlying()) {
             VehicleApi.getApi(this.drone).setVehicleMode(VehicleMode.COPTER_LAND, new SimpleCommandListener() {
@@ -419,52 +429,22 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
                 }
             });
             ArmAlert.show();
-
         }
-    }
-
-//    블루투스 연결
-    public void BltConnect(View view){
-        DroidPlannerPrefs mPrefs = DroidPlannerPrefs.getInstance(getApplicationContext());
-
-        String btAddress = mPrefs.getBluetoothDeviceAddress();
-        final @ConnectionType.Type int connectionType = mPrefs.getConnectionParameterType();
-
-        Uri tlogLoggingUri = com.viasofts.mygcs.utils.TLogUtils.getTLogLoggingUri(getApplicationContext(),
-                connectionType, System.currentTimeMillis());
-
-        final long EVENTS_DISPATCHING_PERIOD = 200L; //MS
-
-        if (TextUtils.isEmpty(btAddress)) {
-            connParams = null;
-            startActivity(new Intent(getApplicationContext(), BluetoothDevicesActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        } else {
-            connParams = ConnectionParameter.newBluetoothConnection(btAddress,
-                    tlogLoggingUri, EVENTS_DISPATCHING_PERIOD);
-        }
-        if (this.drone.isConnected()) {
-            this.drone.disconnect();
-        } else {
-            this.drone.connect(connParams);
-        }
-
     }
 
     //    기체 GPS 위치 가져오기
     private void updateGps_Position() {
         Gps droneGps_P = this.drone.getAttribute(AttributeType.GPS);
-        droneGps_P.getPosition();
-        Attitude droneYAW = this.drone.getAttribute(AttributeType.ATTITUDE);
-        float yaw = (float) droneYAW.getYaw();
+        LatLong recentDronePosition = droneGps_P.getPosition();
+        Attitude attitude = this.drone.getAttribute(AttributeType.ATTITUDE);
+        float yaw = (float) attitude.getYaw();
         if (yaw < 0){
             yaw += 360;
         }
 
-
-
 //        기체 GPS 좌표값
-        double dronela = droneGps_P.getPosition().getLatitude();
-        double dronelo = droneGps_P.getPosition().getLongitude();
+        double dronela = recentDronePosition.getLatitude();
+        double dronelo = recentDronePosition.getLongitude();
 
 //        기체 위치로 카메라 이동
         CameraUpdate cameraUpdate = CameraUpdate.scrollTo(new LatLng(dronela, dronelo)).animate(CameraAnimation.Linear);
@@ -476,36 +456,23 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         mDroneMarker.setMap(mNaverMap);
         mDroneMarker.setIcon(OverlayImage.fromResource(R.drawable.ic_baseline_navigation_24));
 
+        // 가이드모드 목표지점 도달 체크
+        if (mVehicleMode == VehicleMode.COPTER_GUIDED) {
+            if (mCheckGuideMode) {
+                if (CheckGoal(drone, new LatLng(dronela, dronelo))) {
+                    DesMarker.setMap(null);
+                    VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_LOITER);
+                }
+            }
+        }
     }
 
-
-//    롱클릭시 기체 이동
-//    private void goGps_Position() {
-//        final VehicleMode vehicleMode = this.drone.getAttribute(AttributeEvent.STATE_VEHICLE_MODE);
-//        final Gps droneGps_G = this.drone.getAttribute(AttributeType.GPS);
-//        final AlertDialog.Builder myAlertBuilder = new AlertDialog.Builder(MainActivity.this);
-//
-//        if (vehicleMode.getMode() != 4){
-//            myAlertBuilder.setMessage("현재고도를 유지하며\n목표지점까지 기체가 이동합니다.");
-//
-//            myAlertBuilder.setPositiveButton("확인",new DialogInterface.OnClickListener(){
-//                public void onClick(DialogInterface dialog, int which){
-//                    droneGps_G.setPosition(new LatLong(DesLa,DesLo));
-//
-//                }
-//            });
-//            myAlertBuilder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                }
-//            });
-//            myAlertBuilder.show();
-//        }else if (vehicleMode.getMode() == 4){
-//            droneGps_G.setPosition(new LatLong(DesLa,DesLo));
-//        }
-//
-//
-//    }
+    //    기체 현재 위치와 가이드 모드 포인트 지점 비교
+    public boolean CheckGoal(Drone drone, LatLng recentLatLng){
+        GuidedState guidedState = drone.getAttribute(AttributeType.GUIDED_STATE);
+        LatLng target = new LatLng(guidedState.getCoordinate().getLatitude(), guidedState.getCoordinate().getLongitude());
+        return target.distanceTo(recentLatLng) <= 1;
+    }
 
     //    기체 YAW값 가져오기
     private void updateYaw() {
@@ -518,7 +485,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         textView.setText(String.format("YAW "  + yaw) + "deg");
     }
 
-
     //    기체 위성 수 가져오기
     private void updateGps_Count() {
         TextView textView = findViewById(R.id.Gps);
@@ -526,22 +492,12 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         textView.setText(String.format("위성 "  + droneGps_C.getSatellitesCount()));
     }
 
-
     //  기체 전압 가져오기
     private void updateBattery() {
         TextView textView = findViewById(R.id.Battery);
         Battery droneBattery = this.drone.getAttribute(AttributeType.BATTERY);
         textView.setText(String.format("전압 " + "%3.1f", droneBattery.getBatteryVoltage()) + "V");
     }
-
-    //    기체 비행모드 가져오기
-//    private void updateVehicleMode() {
-//        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
-//        VehicleMode vehicleMode = vehicleState.getVehicleMode();
-//        TextView textView = findViewById(R.id.VehicleMode);
-//        textView.setText("비행모드 " + vehicleMode);
-//
-//    }
 
     //  기체 고도 가져오기
     private void updateAltitude() {
@@ -587,9 +543,9 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     }
     protected void updateVehicleMode() {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
-        VehicleMode vehicleMode = vehicleState.getVehicleMode();
+        mVehicleMode = vehicleState.getVehicleMode();
         ArrayAdapter arrayAdapter = (ArrayAdapter) this.modeSelector.getAdapter();
-        this.modeSelector.setSelection(arrayAdapter.getPosition(vehicleMode));
+        this.modeSelector.setSelection(arrayAdapter.getPosition(mVehicleMode));
     }
 
     @Override
