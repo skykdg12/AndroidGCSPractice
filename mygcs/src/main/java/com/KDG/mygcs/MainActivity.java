@@ -588,5 +588,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
     }
 
+    // 여기서부터 새로운 작업을 시작한다.
+
 
 }
