@@ -154,4 +154,91 @@
         app:layout_constraintBottom_toTopOf="@+id/btnUdpConnect"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <Button
+        android:id="@+id/SelectMapType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:text="지도타입"
+        android:onClick="MapType"
+        app:layout_constraintBottom_toBottomOf="@+id/map"
+        app:layout_constraintEnd_toStartOf="@+id/btnUdpConnect" />
+
+    <Button
+        android:id="@+id/BtnBasicMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="3dp"
+        android:text="일반지도"
+        android:onClick="BasicMap"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/SelectMapType"
+        app:layout_constraintEnd_toEndOf="@+id/SelectMapType" />
+
+    <Button
+        android:id="@+id/BtnTerrainMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="3dp"
+        android:text="지형도"
+        android:onClick="TerrainMap"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/BtnBasicMap"
+        app:layout_constraintEnd_toEndOf="@+id/BtnBasicMap" />
+
+    <Button
+        android:id="@+id/BtnSatelliteMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="3dp"
+        android:text="위성지도"
+        android:onClick="SatelliteMap"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/BtnTerrainMap"
+        app:layout_constraintEnd_toEndOf="@+id/BtnTerrainMap" />
+
+    <Button
+        android:id="@+id/BtnMapLockUnlock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:text="맵 잠금/이동"
+        android:onClick="MapLockUnlock"
+        app:layout_constraintBottom_toBottomOf="@+id/map"
+        app:layout_constraintEnd_toStartOf="@+id/SelectMapType" />
+
+    <Button
+        android:id="@+id/BtnMapLock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="맵 잠금"
+        android:onClick="MapLock"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/BtnMapLockUnlock"
+        app:layout_constraintEnd_toEndOf="@+id/BtnMapLockUnlock" />
+
+    <Button
+        android:id="@+id/BtnMapMove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="맵 이동"
+        android:onClick="MapMove"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/BtnMapLock"
+        app:layout_constraintEnd_toEndOf="@+id/BtnMapLockUnlock" />
+
+    <ToggleButton
+        android:id="@+id/ToggleCadastralMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:textOff="지적도On"
+        android:textOn="지적도Off"
+        android:onClick="CadastralMap"
+        app:layout_constraintBottom_toBottomOf="@+id/map"
+        app:layout_constraintEnd_toStartOf="@+id/BtnMapLockUnlock" />
+
 </android.support.constraint.ConstraintLayout>

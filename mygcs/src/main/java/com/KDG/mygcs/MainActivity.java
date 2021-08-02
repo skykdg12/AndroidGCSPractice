@@ -21,6 +21,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.KDG.mygcs.activites.helpers.BluetoothDevicesActivity;
 import com.KDG.mygcs.utils.prefs.DroidPlannerPrefs;
@@ -32,6 +33,7 @@ import com.naver.maps.map.NaverMap;
 import com.naver.maps.map.OnMapReadyCallback;
 import com.naver.maps.map.overlay.Marker;
 import com.naver.maps.map.overlay.OverlayImage;
+import com.naver.maps.map.overlay.PolylineOverlay;
 import com.naver.maps.map.util.FusedLocationSource;
 import com.naver.maps.map.util.MarkerIcons;
 import com.o3dr.android.client.ControlTower;
@@ -59,6 +61,7 @@ import com.o3dr.services.android.lib.gcs.link.LinkConnectionStatus;
 import com.o3dr.services.android.lib.model.AbstractCommandListener;
 import com.o3dr.services.android.lib.model.SimpleCommandListener;
 
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements DroneListener, TowerListener, LinkListener, OnMapReadyCallback {
@@ -86,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     Marker DesMarker = new Marker();
     VehicleMode mVehicleMode;
     boolean mCheckGuideMode = false;
+
 
 
 
@@ -172,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
 //    기체 고도 더하기 버튼
     public void add(View view){
-        final Button BtnAlti = (Button) findViewById(R.id.btnAlti);
+        Button BtnAlti = (Button) findViewById(R.id.btnAlti);
         if (Alti < 10){
             Alti += Add;
             BtnAlti.setText(Alti + "m\n" + "이륙고도");
@@ -181,14 +185,130 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
 //    기체 고도 빼기 버튼
     public void min(View view){
-        final Button BtnAlti = (Button) findViewById(R.id.btnAlti);
+        Button BtnAlti = (Button) findViewById(R.id.btnAlti);
         if (Alti > 3){
             Alti -= Minus;
             BtnAlti.setText(Alti + "m\n" + "이륙고도");
         }
     }
 
-    @Override
+//    지도타입 선택 버튼
+    public void MapType(View view){
+        Button BtnB = (Button) findViewById(R.id.BtnBasicMap);
+        Button BtnS = (Button) findViewById(R.id.BtnSatelliteMap);
+        Button BtnT = (Button) findViewById(R.id.BtnTerrainMap);
+        if(BtnB.getVisibility() == view.GONE) {
+            BtnB.setVisibility(view.VISIBLE);
+        } else {
+            BtnB.setVisibility(view.GONE);
+        }
+        if(BtnS.getVisibility() == view.GONE) {
+            BtnS.setVisibility(view.VISIBLE);
+        } else {
+            BtnS.setVisibility(view.GONE);
+        }
+        if(BtnT.getVisibility() == view.GONE) {
+            BtnT.setVisibility(view.VISIBLE);
+        } else {
+            BtnT.setVisibility(view.GONE);
+        }
+    }
+
+//    일반지도 버튼
+    public void BasicMap(View view){
+        Button BtnB = (Button) findViewById(R.id.BtnBasicMap);
+        Button BtnS = (Button) findViewById(R.id.BtnSatelliteMap);
+        Button BtnT = (Button) findViewById(R.id.BtnTerrainMap);
+        mNaverMap.setMapType(NaverMap.MapType.Basic);
+        Button Select = (Button) findViewById(R.id.SelectMapType);
+        Select.setText("일반지도");
+        BtnB.setVisibility(view.GONE);
+        BtnS.setVisibility(view.GONE);
+        BtnT.setVisibility(view.GONE);
+    }
+
+//    지형도 버튼
+    public void TerrainMap(View view){
+        Button BtnB = (Button) findViewById(R.id.BtnBasicMap);
+        Button BtnS = (Button) findViewById(R.id.BtnSatelliteMap);
+        Button BtnT = (Button) findViewById(R.id.BtnTerrainMap);
+        mNaverMap.setMapType(NaverMap.MapType.Terrain);
+        Button Select = (Button) findViewById(R.id.SelectMapType);
+        Select.setText("지형도");
+        BtnB.setVisibility(view.GONE);
+        BtnS.setVisibility(view.GONE);
+        BtnT.setVisibility(view.GONE);
+    }
+
+//    위성지도 버튼
+    public void SatelliteMap(View view){
+        Button BtnB = (Button) findViewById(R.id.BtnBasicMap);
+        Button BtnS = (Button) findViewById(R.id.BtnSatelliteMap);
+        Button BtnT = (Button) findViewById(R.id.BtnTerrainMap);
+        mNaverMap.setMapType(NaverMap.MapType.Satellite);
+        Button Select = (Button) findViewById(R.id.SelectMapType);
+        Select.setText("위성지도");
+        BtnB.setVisibility(view.GONE);
+        BtnS.setVisibility(view.GONE);
+        BtnT.setVisibility(view.GONE);
+    }
+
+//    맵 잠금/이동 버튼
+    public void MapLockUnlock(View view){
+        Button BtnM = (Button) findViewById(R.id.BtnMapMove);
+        Button BtnL = (Button) findViewById(R.id.BtnMapLock);
+        if(BtnM.getVisibility() == view.GONE) {
+            BtnM.setVisibility(view.VISIBLE);
+        } else {
+            BtnM.setVisibility(view.GONE);
+        }
+        if(BtnL.getVisibility() == view.GONE) {
+            BtnL.setVisibility(view.VISIBLE);
+        } else {
+            BtnL.setVisibility(view.GONE);
+        }
+    }
+
+//    맵 이동 버튼
+    public void MapMove(View view) {
+        Button BtnM = (Button) findViewById(R.id.BtnMapMove);
+        Button BtnL = (Button) findViewById(R.id.BtnMapLock);
+        Button BtnMLU = (Button) findViewById(R.id.BtnMapLockUnlock);
+        mNaverMap.moveCamera(null);
+        BtnMLU.setText("맵 이동");
+        BtnM.setVisibility(view.GONE);
+        BtnL.setVisibility(view.GONE);
+
+    }
+
+//    맵 잠금 버튼
+    public void MapLock(View view) {
+        Button BtnM = (Button) findViewById(R.id.BtnMapMove);
+        Button BtnL = (Button) findViewById(R.id.BtnMapLock);
+        Button BtnMLU = (Button) findViewById(R.id.BtnMapLockUnlock);
+        Gps droneGps_P = drone.getAttribute(AttributeType.GPS);
+        LatLong recentDronePosition = droneGps_P.getPosition();
+
+        double dronela = recentDronePosition.getLatitude();
+        double dronelo = recentDronePosition.getLongitude();
+        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(new LatLng(dronela, dronelo)).animate(CameraAnimation.Linear);
+        mNaverMap.moveCamera(cameraUpdate);
+        BtnMLU.setText("맵 잠금");
+        BtnM.setVisibility(view.GONE);
+        BtnL.setVisibility(view.GONE);
+    }
+
+    public void CadastralMap (View view){
+        ToggleButton BtnCM = (ToggleButton) findViewById(R.id.ToggleCadastralMap);
+        if (BtnCM.isChecked()){
+            mNaverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL, true);
+        }else {
+            mNaverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL, false);
+
+        }
+    }
+
+        @Override
     public void onStart() {
         super.onStart();
         this.controlTower.connect(this);
@@ -346,7 +466,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         }
     }
 
-
     //  ARM, TAKE-OFF, LAND 기능 구현
     public void onArmButtonTap(View view) {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
@@ -465,6 +584,12 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
                 }
             }
         }
+
+        PolylineOverlay polyline = new PolylineOverlay();
+        polyline.setCoords(Collections.singletonList(new LatLng(dronela, dronelo)));
+        polyline.setColor(Color.RED);
+        polyline.setMap(mNaverMap);
+
     }
 
     //    기체 현재 위치와 가이드 모드 포인트 지점 비교
@@ -587,8 +712,5 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     public void onPointerCaptureChanged(boolean hasCapture) {
 
     }
-
-    // 여기서부터 새로운 작업을 시작한다.
-
 
 }
