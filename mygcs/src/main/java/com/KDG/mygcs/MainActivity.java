@@ -89,9 +89,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     Marker DesMarker = new Marker();
     VehicleMode mVehicleMode;
     boolean mCheckGuideMode = false;
-
-
-
+    boolean MapMoveSelect = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         }
 
     //  기체 고도 설정 버튼 나타내기/사라지기
-    public void Al(View view){
+    public void SelectAlti(View view){
         final Button BtnAdd = (Button) findViewById(R.id.btnadd);
         final Button Btnminus = (Button) findViewById(R.id.btnminus);
         if(BtnAdd.getVisibility() == view.GONE) {
@@ -175,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     }
 
 //    기체 고도 더하기 버튼
-    public void add(View view){
+    public void AltiAdd(View view){
         Button BtnAlti = (Button) findViewById(R.id.btnAlti);
         if (Alti < 10){
             Alti += Add;
@@ -184,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     }
 
 //    기체 고도 빼기 버튼
-    public void min(View view){
+    public void AltiMinus(View view){
         Button BtnAlti = (Button) findViewById(R.id.btnAlti);
         if (Alti > 3){
             Alti -= Minus;
@@ -253,51 +251,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         BtnT.setVisibility(view.GONE);
     }
 
-//    맵 잠금/이동 버튼
-    public void MapLockUnlock(View view){
-        Button BtnM = (Button) findViewById(R.id.BtnMapMove);
-        Button BtnL = (Button) findViewById(R.id.BtnMapLock);
-        if(BtnM.getVisibility() == view.GONE) {
-            BtnM.setVisibility(view.VISIBLE);
-        } else {
-            BtnM.setVisibility(view.GONE);
-        }
-        if(BtnL.getVisibility() == view.GONE) {
-            BtnL.setVisibility(view.VISIBLE);
-        } else {
-            BtnL.setVisibility(view.GONE);
-        }
-    }
 
-//    맵 이동 버튼
-    public void MapMove(View view) {
-        Button BtnM = (Button) findViewById(R.id.BtnMapMove);
-        Button BtnL = (Button) findViewById(R.id.BtnMapLock);
-        Button BtnMLU = (Button) findViewById(R.id.BtnMapLockUnlock);
-        mNaverMap.moveCamera(null);
-        BtnMLU.setText("맵 이동");
-        BtnM.setVisibility(view.GONE);
-        BtnL.setVisibility(view.GONE);
-
-    }
-
-//    맵 잠금 버튼
-    public void MapLock(View view) {
-        Button BtnM = (Button) findViewById(R.id.BtnMapMove);
-        Button BtnL = (Button) findViewById(R.id.BtnMapLock);
-        Button BtnMLU = (Button) findViewById(R.id.BtnMapLockUnlock);
-        Gps droneGps_P = drone.getAttribute(AttributeType.GPS);
-        LatLong recentDronePosition = droneGps_P.getPosition();
-
-        double dronela = recentDronePosition.getLatitude();
-        double dronelo = recentDronePosition.getLongitude();
-        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(new LatLng(dronela, dronelo)).animate(CameraAnimation.Linear);
-        mNaverMap.moveCamera(cameraUpdate);
-        BtnMLU.setText("맵 잠금");
-        BtnM.setVisibility(view.GONE);
-        BtnL.setVisibility(view.GONE);
-    }
-
+//  지적도 on/off 버튼
     public void CadastralMap (View view){
         ToggleButton BtnCM = (ToggleButton) findViewById(R.id.ToggleCadastralMap);
         if (BtnCM.isChecked()){
@@ -551,6 +506,44 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         }
     }
 
+    //    맵 잠금/이동 버튼
+    public void MapLockUnlock(View view){
+        Button BtnM = (Button) findViewById(R.id.BtnMapMove);
+        Button BtnL = (Button) findViewById(R.id.BtnMapLock);
+        if(BtnM.getVisibility() == view.GONE) {
+            BtnM.setVisibility(view.VISIBLE);
+        } else {
+            BtnM.setVisibility(view.GONE);
+        }
+        if(BtnL.getVisibility() == view.GONE) {
+            BtnL.setVisibility(view.VISIBLE);
+        } else {
+            BtnL.setVisibility(view.GONE);
+        }
+    }
+
+    //    맵 이동 버튼
+    public void MapMove(View view) {
+        Button BtnM = (Button) findViewById(R.id.BtnMapMove);
+        Button BtnL = (Button) findViewById(R.id.BtnMapLock);
+        Button BtnMLU = (Button) findViewById(R.id.BtnMapLockUnlock);
+        MapMoveSelect = false;
+        BtnMLU.setText("맵 이동");
+        BtnM.setVisibility(view.GONE);
+        BtnL.setVisibility(view.GONE);
+    }
+
+    //    맵 잠금 버튼
+    public void MapLock(View view) {
+        Button BtnM = (Button) findViewById(R.id.BtnMapMove);
+        Button BtnL = (Button) findViewById(R.id.BtnMapLock);
+        Button BtnMLU = (Button) findViewById(R.id.BtnMapLockUnlock);
+        MapMoveSelect = true;
+        BtnMLU.setText("맵 잠금");
+        BtnM.setVisibility(view.GONE);
+        BtnL.setVisibility(view.GONE);
+    }
+
     //    기체 GPS 위치 가져오기
     private void updateGps_Position() {
         Gps droneGps_P = this.drone.getAttribute(AttributeType.GPS);
@@ -566,8 +559,10 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         double dronelo = recentDronePosition.getLongitude();
 
 //        기체 위치로 카메라 이동
-        CameraUpdate cameraUpdate = CameraUpdate.scrollTo(new LatLng(dronela, dronelo)).animate(CameraAnimation.Linear);
-        mNaverMap.moveCamera(cameraUpdate);
+        if (MapMoveSelect == true){
+            CameraUpdate cameraUpdate = CameraUpdate.scrollTo(new LatLng(dronela, dronelo)).animate(CameraAnimation.Linear);
+            mNaverMap.moveCamera(cameraUpdate);
+        }
 
 //        기체 YAW값에 따라 마커 헤드 방향 조정
         mDroneMarker.setPosition(new LatLng(dronela, dronelo));
@@ -585,6 +580,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
             }
         }
 
+//        기체 이동 경로선 그리기
         PolylineOverlay polyline = new PolylineOverlay();
         polyline.setCoords(Collections.singletonList(new LatLng(dronela, dronelo)));
         polyline.setColor(Color.RED);
