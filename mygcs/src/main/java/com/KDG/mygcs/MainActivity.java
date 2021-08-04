@@ -12,6 +12,8 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -61,8 +63,10 @@ import com.o3dr.services.android.lib.gcs.link.LinkConnectionStatus;
 import com.o3dr.services.android.lib.model.AbstractCommandListener;
 import com.o3dr.services.android.lib.model.SimpleCommandListener;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity implements DroneListener, TowerListener, LinkListener, OnMapReadyCallback {
 
@@ -90,6 +94,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     VehicleMode mVehicleMode;
     boolean mCheckGuideMode = false;
     boolean MapMoveSelect = true;
+    ArrayList<String> msgs = new ArrayList<String>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,12 +114,18 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 //      기체 현재 위치
         locationSource = new FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE);
 
-
         final Context context = getApplicationContext();
         this.controlTower = new ControlTower(context);
         this.drone = new Drone(context);
 
         mainHandler = new Handler(getApplicationContext().getMainLooper());
+
+        RecyclerView recyclerView=findViewById(R.id.ReCyclerview);
+        msgs.add("ad");
+        msgs.add("qwe");
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new RecyclerAdapter(msgs));
+
     }
 
     @Override
@@ -483,6 +495,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
                         public void onSuccess() {
                             alertUser("Success Arming");
                             armButton.setText("TAKE OFF");
+
+
                         }
 
                         @Override
