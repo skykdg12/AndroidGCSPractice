@@ -16,7 +16,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     public RecyclerAdapter(ArrayList<String> msgs){
 
-        for(int i = 0; i < msgs.size();i++){
+        for(int i = 0; i < msgs.size(); i++){
             itemList.add(msgs.get(i));
         }
 

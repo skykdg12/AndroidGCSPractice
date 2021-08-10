@@ -94,7 +94,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     VehicleMode mVehicleMode;
     boolean mCheckGuideMode = false;
     boolean MapMoveSelect = true;
-    ArrayList<String> msgs = new ArrayList<String>();
+
+    ArrayList<String> msgs = new ArrayList<>();
 
 
     @Override
@@ -120,12 +121,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
         mainHandler = new Handler(getApplicationContext().getMainLooper());
 
-        RecyclerView recyclerView=findViewById(R.id.ReCyclerview);
-        msgs.add("ad");
-        msgs.add("qwe");
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new RecyclerAdapter(msgs));
-
+        msgs.add("dfa");
+        setRecyclerAdapter();
     }
 
     @Override
@@ -330,6 +327,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         }
     }
 
+
+
 //  드론 상태값 가져오기
     @Override
     public void onDroneEvent(String event, Bundle extras) {
@@ -412,6 +411,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
                                 public void onSuccess() {
                                     ControlApi.getApi(drone).goTo(point, true, null);
+                                    msgs.add(" * 기체가 목표지점으로 이동합니다.");
+                                    setRecyclerAdapter();
                                 }
                                 @Override
 
@@ -444,6 +445,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
                 @Override
                 public void onError(int executionError) {
                     alertUser("Unable to land the vehicle.");
+                    msgs.add(" * 착륙완료");
+                    setRecyclerAdapter();
                 }
                 @Override
                 public void onTimeout() {
@@ -461,6 +464,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
                         public void onSuccess() {
                             alertUser("Taking off...");
                             armButton.setText("LAND");
+                            msgs.add(" * 이륙완료");
+                            setRecyclerAdapter();
                         }
 
                         @Override
@@ -495,8 +500,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
                         public void onSuccess() {
                             alertUser("Success Arming");
                             armButton.setText("TAKE OFF");
-
-
+                            msgs.add(" * 모터가동");
+                            setRecyclerAdapter();
                         }
 
                         @Override
@@ -590,6 +595,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
                 if (CheckGoal(drone, new LatLng(dronela, dronelo))) {
                     DesMarker.setMap(null);
                     VehicleApi.getApi(drone).setVehicleMode(VehicleMode.COPTER_LOITER);
+                    msgs.add(" * 기체가 목표지점에 도착하였습니다.");
+                    setRecyclerAdapter();
                 }
             }
         }
@@ -681,6 +688,22 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         mVehicleMode = vehicleState.getVehicleMode();
         ArrayAdapter arrayAdapter = (ArrayAdapter) this.modeSelector.getAdapter();
         this.modeSelector.setSelection(arrayAdapter.getPosition(mVehicleMode));
+    }
+
+//    리사이클러뷰 어댑터 설정
+    public void setRecyclerAdapter(){
+        RecyclerView recyclerView = findViewById(R.id.ReCyclerview);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(new RecyclerAdapter(msgs));
+    }
+
+//    클리어 버튼
+    public void ClearBtn(View view){
+        RecyclerView recyclerView = findViewById(R.id.ReCyclerview);
+        recyclerView.setAdapter(null);
+        PolylineOverlay polyline = new PolylineOverlay();
+        polyline.setMap(null);
+        DesMarker.setMap(null);
     }
 
     @Override
