@@ -83,6 +83,10 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     private double Alti = 3.0;
     private double Add = 0.5;
     private double Minus = 0.5;
+    private double FlightWidth = 0.5;
+    private int DistanceAB = 10;
+    private int DistanceAdd = 10;
+    private int DistanceMinus = 10;
     private static final int DEFAULT_UDP_PORT = 14550;
     private static final int DEFAULT_USB_BAUD_RATE = 57600;
     private Spinner modeSelector;
@@ -94,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     VehicleMode mVehicleMode;
     boolean mCheckGuideMode = false;
     boolean MapMoveSelect = true;
+    boolean MissionAB = false;
+
 
     ArrayList<String> msgs = new ArrayList<>();
 
@@ -121,8 +127,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
         mainHandler = new Handler(getApplicationContext().getMainLooper());
 
-        msgs.add("dfa");
-        setRecyclerAdapter();
     }
 
     @Override
@@ -134,9 +138,17 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 //   지도 타입 위성으로 변경
         naverMap.setMapType(NaverMap.MapType.Satellite);
 
-//        기체 고도 설정 버튼
-        final Button BtnAlti = (Button) findViewById(R.id.btnAlti);
+//   기체 고도 설정 버튼
+        Button BtnAlti = (Button) findViewById(R.id.btnAlti);
         BtnAlti.setText(Alti + "m\n" + "이륙고도");
+
+//        기체 비행폭 설정 버튼
+        Button BtnFlightWidth = (Button) findViewById(R.id.FlightWidth);
+        BtnFlightWidth.setText(FlightWidth + "m\n" + "비행폭");
+
+//        기체 AB거리 설정 버튼
+        Button BtnDistanceAB = (Button) findViewById(R.id.DistanceAB);
+        BtnDistanceAB.setText(DistanceAB + "m\n" + "AB거리");
 
 //      기체 비행 모드 선택
         this.modeSelector = (Spinner) findViewById(R.id.ModeSelect);
@@ -163,12 +175,15 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
                 LatLong mGuidedPoint = new LatLong(coord.latitude, coord.longitude);
                 GuideMode(mGuidedPoint);
             });
-        }
+
+
+
+    }
 
     //  기체 고도 설정 버튼 나타내기/사라지기
     public void SelectAlti(View view){
-        final Button BtnAdd = (Button) findViewById(R.id.btnadd);
-        final Button Btnminus = (Button) findViewById(R.id.btnminus);
+        Button BtnAdd = (Button) findViewById(R.id.btnadd);
+        Button Btnminus = (Button) findViewById(R.id.btnminus);
         if(BtnAdd.getVisibility() == view.GONE) {
             BtnAdd.setVisibility(view.VISIBLE);
         } else {
@@ -197,6 +212,128 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
             Alti -= Minus;
             BtnAlti.setText(Alti + "m\n" + "이륙고도");
         }
+    }
+
+//    기체 비행폭 설정 버튼 나타내기/사라지기
+    public void SelectFW(View view){
+        Button BtnFwAdd = (Button) findViewById(R.id.FlightWidthAdd);
+        Button BtnFwMinus = (Button) findViewById(R.id.FlightWidthMinus);
+        if(BtnFwAdd.getVisibility() == view.GONE) {
+            BtnFwAdd.setVisibility(view.VISIBLE);
+        } else {
+            BtnFwAdd.setVisibility(view.GONE);
+        }
+        if(BtnFwMinus.getVisibility() == view.GONE) {
+            BtnFwMinus.setVisibility(view.VISIBLE);
+        } else {
+            BtnFwMinus.setVisibility(view.GONE);
+        }
+    }
+// 기체 비행폭 더하기 버튼
+    public void FwAdd(View view){
+        Button BtnFlightWidth = (Button) findViewById(R.id.FlightWidth);
+        FlightWidth += Add;
+        BtnFlightWidth.setText(FlightWidth + "m\n" + "비행폭");
+    }
+
+//    기체 비행폭 빼기 버튼
+    public void FwMinus(View view){
+        Button BtnFlightWidth = (Button) findViewById(R.id.FlightWidth);
+        if (FlightWidth > 0){
+            FlightWidth -= Minus;
+            BtnFlightWidth.setText(FlightWidth + "m\n" + "비행폭");
+        }
+    }
+
+//    기체 AB거리 설정 버튼 나타내기/사라지기
+    public void SelectAB(View view){
+        Button BtnAbAdd = (Button) findViewById(R.id.DistanceAdd);
+        Button BtnAbMinus = (Button) findViewById(R.id.DistanceMinus);
+        if(BtnAbAdd.getVisibility() == view.GONE) {
+            BtnAbAdd.setVisibility(view.VISIBLE);
+        } else {
+            BtnAbAdd.setVisibility(view.GONE);
+        }
+        if(BtnAbMinus.getVisibility() == view.GONE) {
+            BtnAbMinus.setVisibility(view.VISIBLE);
+        } else {
+            BtnAbMinus.setVisibility(view.GONE);
+        }
+    }
+
+//    기체 AB거리 더하기 버튼
+    public void DistanceAbAdd(View view){
+        Button BtnDistanceAB = (Button) findViewById(R.id.DistanceAB);
+        DistanceAB += DistanceAdd;
+        BtnDistanceAB.setText(DistanceAB + "m\n" + "AB거리");
+    }
+
+//    기체 AB거리 빼기 버튼
+    public void DistanceAbMinus(View view){
+        Button BtnDistanceAB = (Button) findViewById(R.id.DistanceAB);
+        if (DistanceAB > 0){
+            DistanceAB -= DistanceMinus;
+            BtnDistanceAB.setText(DistanceAB + "m\n" + "AB거리");
+        }
+    }
+
+    //  임무 설정 버튼 나타내기/사라지기
+    public void SelectMission (View view){
+        Button BtnAB = (Button) findViewById(R.id.MissionAB);
+        Button BtnPoly = (Button) findViewById(R.id.MissionPolygon);
+        Button BtnCancel = (Button) findViewById(R.id.MissionCancel);
+        if(BtnAB.getVisibility() == view.GONE) {
+            BtnAB.setVisibility(view.VISIBLE);
+        } else {
+            BtnAB.setVisibility(view.GONE);
+        }
+        if(BtnPoly.getVisibility() == view.GONE) {
+            BtnPoly.setVisibility(view.VISIBLE);
+        } else {
+            BtnPoly.setVisibility(view.GONE);
+        }
+        if(BtnCancel.getVisibility() == view.GONE) {
+            BtnCancel.setVisibility(view.VISIBLE);
+        } else {
+            BtnCancel.setVisibility(view.GONE);
+        }
+    }
+
+    //    임무 AB 버튼
+    public void MissionAB (View view) {
+        Button BtnMission = (Button) findViewById(R.id.MissionBtn);
+        Button BtnAB = (Button) findViewById(R.id.MissionAB);
+        Button BtnPoly = (Button) findViewById(R.id.MissionPolygon);
+        Button BtnCancel = (Button) findViewById(R.id.MissionCancel);
+        BtnAB.setVisibility(view.GONE);
+        BtnPoly.setVisibility(view.GONE);
+        BtnCancel.setVisibility(view.GONE);
+        BtnMission.setText("AB");
+        MissionAB = true;
+    }
+
+    //    임무 다각형 버튼
+    public void MissionPolygon(View view){
+        Button BtnMission = (Button) findViewById(R.id.MissionBtn);
+        Button BtnAB = (Button) findViewById(R.id.MissionAB);
+        Button BtnPoly = (Button) findViewById(R.id.MissionPolygon);
+        Button BtnCancel = (Button) findViewById(R.id.MissionCancel);
+        BtnAB.setVisibility(view.GONE);
+        BtnPoly.setVisibility(view.GONE);
+        BtnCancel.setVisibility(view.GONE);
+        BtnMission.setText("다각형");
+    }
+
+    //    임무 취소 버튼
+    public void MissionCancel(View view){
+        Button BtnMission = (Button) findViewById(R.id.MissionBtn);
+        Button BtnAB = (Button) findViewById(R.id.MissionAB);
+        Button BtnPoly = (Button) findViewById(R.id.MissionPolygon);
+        Button BtnCancel = (Button) findViewById(R.id.MissionCancel);
+        BtnAB.setVisibility(view.GONE);
+        BtnPoly.setVisibility(view.GONE);
+        BtnCancel.setVisibility(view.GONE);
+        MissionAB = false;
     }
 
 //    지도타입 선택 버튼
@@ -260,7 +397,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         BtnT.setVisibility(view.GONE);
     }
 
-
 //  지적도 on/off 버튼
     public void CadastralMap (View view){
         ToggleButton BtnCM = (ToggleButton) findViewById(R.id.ToggleCadastralMap);
@@ -268,7 +404,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
             mNaverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL, true);
         }else {
             mNaverMap.setLayerGroupEnabled(NaverMap.LAYER_GROUP_CADASTRAL, false);
-
         }
     }
 
@@ -286,7 +421,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
             this.drone.disconnect();
             //updateConnectedButton(false);
         }
-
         this.controlTower.unregisterDrone(this.drone);
         this.controlTower.disconnect();
     }
@@ -326,8 +460,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
             this.drone.connect(connParams);
         }
     }
-
-
 
 //  드론 상태값 가져오기
     @Override
