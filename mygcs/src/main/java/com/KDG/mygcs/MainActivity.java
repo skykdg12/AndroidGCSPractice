@@ -99,9 +99,14 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     boolean mCheckGuideMode = false;
     boolean MapMoveSelect = true;
     boolean MissionAB = false;
-
-
     ArrayList<String> msgs = new ArrayList<>();
+    private static final double RADIUS_OF_EARTH_IN_METERS = 6378137.0;
+    public static final int SIGNAL_MAX_FADE_MARGIN = 50;
+    public static final int SIGNAL_MIN_FADE_MARGIN = 6;
+    private ArrayList<Marker> mMarkerArrayList = new ArrayList<>();
+    private ArrayList<LatLng> mlatLngArrayList = new ArrayList<>();
+    PolylineOverlay mPolyline = new PolylineOverlay();
+    Marker MarkerA = new Marker();
 
 
     @Override
@@ -166,21 +171,34 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
 //        롱클릭 마커
         mNaverMap.setOnMapLongClickListener((point, coord) -> {
-
                 DesMarker.setPosition(coord);
                 DesMarker.setMap(mNaverMap);
                 DesMarker.setIcon(MarkerIcons.BLACK);
                 DesMarker.setIconTintColor(Color.RED);
-
                 LatLong mGuidedPoint = new LatLong(coord.latitude, coord.longitude);
                 GuideMode(mGuidedPoint);
             });
 
+        mNaverMap.setOnMapClickListener(((pointF, latLng) -> {
+            if (MissionAB == true){
 
+                MarkerA.setPosition(latLng);
+                MarkerA.setMap(mNaverMap);
+                mMarkerArrayList.add(MarkerA);
+                mlatLngArrayList.add(MarkerA.getPosition());
+
+//                if (mlatLngArrayList.size() > 1){
+//                    mPolyline.setCoords(mlatLngArrayList);
+//                    mPolyline.setMap(mNaverMap);
+//
+//                }
+            }
+
+        }));
 
     }
 
-    //  기체 고도 설정 버튼 나타내기/사라지기
+//      기체 고도 설정 버튼 나타내기/사라지기
     public void SelectAlti(View view){
         Button BtnAdd = (Button) findViewById(R.id.btnadd);
         Button Btnminus = (Button) findViewById(R.id.btnminus);
@@ -333,6 +351,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         BtnAB.setVisibility(view.GONE);
         BtnPoly.setVisibility(view.GONE);
         BtnCancel.setVisibility(view.GONE);
+        BtnMission.setText("임무");
         MissionAB = false;
     }
 
@@ -738,7 +757,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         polyline.setCoords(Collections.singletonList(new LatLng(dronela, dronelo)));
         polyline.setColor(Color.RED);
         polyline.setMap(mNaverMap);
-
     }
 
     //    기체 현재 위치와 가이드 모드 포인트 지점 비교
@@ -837,6 +855,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         polyline.setMap(null);
         DesMarker.setMap(null);
     }
+
 
     @Override
     public void onDroneServiceInterrupted(String errorMsg) {
