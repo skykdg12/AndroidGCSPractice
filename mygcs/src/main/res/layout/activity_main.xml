@@ -101,9 +101,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="40dp"
-        android:text="ARM"
-        android:onClick="onArmButtonTap"
         android:background="@drawable/arm_button_shape"
+        android:onClick="onArmButtonTap"
+        android:text="ARM"
         app:layout_constraintBottom_toBottomOf="@+id/map"
         app:layout_constraintStart_toStartOf="@+id/map" />
 
@@ -127,7 +127,7 @@
         android:background="@drawable/button_shape"
         android:onClick="AltiAdd"
         android:text="+0.5"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="@+id/btnAlti"
         app:layout_constraintTop_toBottomOf="@+id/btnAlti" />
 
@@ -139,7 +139,7 @@
         android:background="@drawable/button_shape"
         android:onClick="AltiMinus"
         android:text="-0.5"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="@+id/btnAlti"
         app:layout_constraintTop_toBottomOf="@+id/btnadd" />
 
@@ -174,7 +174,7 @@
         android:layout_marginBottom="1dp"
         android:onClick="BasicMap"
         android:text="일반지도"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:background="@drawable/button_shape"
         app:layout_constraintBottom_toTopOf="@+id/SelectMapType"
         app:layout_constraintEnd_toEndOf="@+id/SelectMapType" />
@@ -186,7 +186,7 @@
         android:layout_marginBottom="1dp"
         android:onClick="TerrainMap"
         android:text="지형도"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:background="@drawable/button_shape"
         app:layout_constraintBottom_toTopOf="@+id/BtnBasicMap"
         app:layout_constraintEnd_toEndOf="@+id/BtnBasicMap" />
@@ -198,7 +198,7 @@
         android:layout_marginBottom="1dp"
         android:onClick="SatelliteMap"
         android:text="위성지도"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:background="@drawable/button_shape"
         app:layout_constraintBottom_toTopOf="@+id/BtnTerrainMap"
         app:layout_constraintEnd_toEndOf="@+id/SelectMapType" />
@@ -222,7 +222,7 @@
         android:layout_marginBottom="1dp"
         android:onClick="MapLock"
         android:text="맵 잠금"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:background="@drawable/button_shape"
         app:layout_constraintBottom_toTopOf="@+id/BtnMapLockUnlock"
         app:layout_constraintStart_toStartOf="@+id/BtnMapLockUnlock" />
@@ -234,7 +234,7 @@
         android:layout_marginBottom="1dp"
         android:onClick="MapMove"
         android:text="맵 이동"
-        android:visibility="invisible"
+        android:visibility="gone"
         android:background="@drawable/button_shape"
         app:layout_constraintBottom_toTopOf="@+id/BtnMapLock"
         app:layout_constraintStart_toStartOf="@+id/BtnMapLockUnlock" />
@@ -314,7 +314,7 @@
         android:background="@drawable/button_shape"
         android:onClick="FwAdd"
         android:text="+0.5"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@+id/FlightWidth"
         app:layout_constraintTop_toBottomOf="@+id/FlightWidth" />
 
@@ -326,7 +326,7 @@
         android:background="@drawable/button_shape"
         android:onClick="FwMinus"
         android:text="-0.5"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@+id/FlightWidth"
         app:layout_constraintTop_toBottomOf="@+id/FlightWidthAdd" />
 
@@ -338,7 +338,7 @@
         android:background="#8b4513"
         android:onClick="DistanceAbAdd"
         android:text="+10"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@+id/DistanceAB"
         app:layout_constraintTop_toBottomOf="@+id/DistanceAB" />
 
@@ -350,7 +350,7 @@
         android:background="#8b4513"
         android:onClick="DistanceAbMinus"
         android:text="-10"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@+id/DistanceAB"
         app:layout_constraintTop_toBottomOf="@+id/DistanceAdd" />
 
@@ -362,7 +362,7 @@
         android:background="@drawable/button_shape"
         android:text="AB"
         android:onClick="MissionAB"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@+id/MissionBtn"
         app:layout_constraintTop_toBottomOf="@+id/MissionBtn" />
 
@@ -374,7 +374,7 @@
         android:background="@drawable/button_shape"
         android:text="다각형"
         android:onClick="MissionPolygon"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@+id/MissionBtn"
         app:layout_constraintTop_toBottomOf="@+id/MissionAB" />
 
@@ -386,7 +386,7 @@
         android:background="@drawable/button_shape"
         android:text="취소"
         android:onClick="MissionCancel"
-        android:visibility="invisible"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@+id/MissionBtn"
         app:layout_constraintTop_toBottomOf="@+id/MissionPolygon" />
 
